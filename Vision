@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieMagnet Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-[#0b0f1a] text-slate-200 overflow-hidden" id="bodyTag">
+
+    <div class="flex h-screen">
+        <aside id="sidebar"
+            class="w-20 md:w-64 border-r border-slate-800 flex flex-col p-5 bg-[#0b0f1a] z-50 transition-all">
+            <div class="mb-10 px-2 flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center shadow-lg shadow-rose-600/40">
+                    <i class="fas fa-magnet text-white text-xl"></i>
+                </div>
+                <h1 class="text-xl font-extrabold tracking-tight hidden md:block">MOVIE<span
+                        class="text-rose-600">MAGNET</span></h1>
+            </div>
+
+            <nav class="flex-1 space-y-2" id="navLinks">
+                <button onclick="changeCategory('/movie/popular', 'Popular Movies', this)"
+                    class="sidebar-link active w-full flex items-center gap-4 p-3 rounded-xl text-slate-400 hover:bg-slate-800 transition">
+                    <i class="fas fa-fire w-6 text-center"></i> <span
+                        class="hidden md:inline font-semibold">Trending</span>
+                </button>
+                <button onclick="changeCategory('/tv/popular', 'TV Series', this)"
+                    class="sidebar-link w-full flex items-center gap-4 p-3 rounded-xl text-slate-400 hover:bg-slate-800 transition">
+                    <i class="fas fa-desktop w-6 text-center"></i> <span class="hidden md:inline font-semibold">TV
+                        Shows</span>
+                </button>
+                <button onclick="changeCategory('/person/popular', 'Celebrities', this)"
+                    class="sidebar-link w-full flex items-center gap-4 p-3 rounded-xl text-slate-400 hover:bg-slate-800 transition">
+                    <i class="fas fa-users w-6 text-center"></i> <span
+                        class="hidden md:inline font-semibold">Actors</span>
+                </button>
+                <button onclick="showFavorites()"
+                    class="sidebar-link w-full flex items-center gap-4 p-3 rounded-xl text-slate-400 hover:bg-slate-800 transition">
+                    <i class="fas fa-heart w-6 text-center"></i>
+                    <span class="hidden md:inline font-semibold">Favorites</span>
+                </button>
+            </nav>
+
+            <button id="themeToggle"
+                class="p-4 mt-auto bg-slate-800/50 rounded-2xl hover:bg-rose-600 hover:text-white transition-all flex items-center justify-center gap-3">
+                <i class="fas fa-moon" id="themeIcon"></i> <span class="hidden md:inline font-bold text-sm">Switch
+                    Theme</span>
+            </button>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto bg-[#0b0f1a]" id="mainScroll">
+
+            <header
+                class="p-6 sticky top-0 bg-[#0b0f1a]/60 backdrop-blur-xl z-40 flex justify-between items-center border-b border-slate-800/50">
+                <div class="relative w-full max-w-2xl">
+                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <input type="text" id="searchInput" placeholder="Search for movies, actors or shows..."
+                        class="w-full bg-slate-900/50 border border-slate-700 py-4 pl-14 pr-6 rounded-2xl focus:ring-2 focus:ring-rose-600 focus:bg-slate-900 outline-none transition-all text-sm">
+                </div>
+            </header>
+
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-10">
+                    <h2 id="sectionTitle" class="text-3xl font-extrabold tracking-tight">Trending Now</h2>
+                    <div id="loading"
+                        class="hidden loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8">
+                    </div>
+                </div>
+
+                <div id="movieGrid"
+                    class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                </div>
+
+                <div class="flex justify-center py-16">
+                    <button id="loadMore"
+                        class="group bg-slate-800 hover:bg-rose-600 text-white font-bold py-4 px-12 rounded-2xl transition-all shadow-xl flex items-center gap-3">
+                        <span>Load More Content</span>
+                        <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+
+            <footer class="mt-auto border-t border-slate-800 p-8 text-center text-slate-500 text-sm">
+                <p>© 2026 MovieMagnet Pro. All rights reserved.</p>
+                <div class="flex justify-center gap-6 mt-4">
+                    <a href="#" class="hover:text-rose-600 transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-rose-600 transition">Terms of Service</a>
+                    <a href="#" class="hover:text-rose-600 transition">Contact</a>
+                </div>
+            </footer>
+
+
+            <script src="script.js"></script>
+</body>
+
+
+//Script.Js
+// API Configuration (Active Key)
+const API_KEY = '3fd2be37162483127341d690f1f1d10e';
+const BASE_URL = 'https://api.themoviedb.org/3';
+const IMG_URL = 'https://image.tmdb.org/t/p/w500';
+
+let currentPage = 1;
+let currentEndpoint = '/movie/popular';
+let isSearching = false;
+
+// --- CORE FUNCTIONS ---
+
+async function fetchMovies(endpoint, append = false) {
+    document.getElementById('loading').classList.remove('hidden');
+    try {
+        const url = `${BASE_URL}${endpoint}${endpoint.includes('?') ? '&' : '?'}api_key=${API_KEY}&page=${currentPage}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        renderCards(data.results, append);
+    } catch (error) {
+        console.error("Fetch Error:", error);
+    }
+    document.getElementById('loading').classList.add('hidden');
+}
+
+function renderCards(items, append) {
+    const grid = document.getElementById('movieGrid');
+    if (!append) grid.innerHTML = '';
+
+    items.forEach(item => {
+        if (!item.poster_path && !item.profile_path) return; // Skip items without images
+
+        const card = document.createElement('div');
+        card.className = 'movie-card group relative bg-slate-900 rounded-2xl overflow-hidden shadow-lg border border-slate-800 cursor-pointer';
+
+        const image = item.poster_path || item.profile_path;
+        const title = item.title || item.name;
+        const rating = item.vote_average ? `★ ${item.vote_average.toFixed(1)}` : 'N/A';
+        const date = (item.release_date || item.first_air_date || 'Unknown').split('-')[0];
+
+        card.innerHTML = `
+                    <img src="${IMG_URL + image}" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent opacity-0 p-5 flex flex-col justify-end">
+                        <span class="text-rose-500 text-xs font-bold mb-1">${date}</span>
+                        <h3 class="font-bold text-white leading-tight truncate">${title}</h3>
+                        <div class="flex items-center justify-between mt-3">
+                            <span class="bg-rose-600 text-[10px] px-2 py-1 rounded text-white font-bold">${rating}</span>
+                            <i class="fas fa-play-circle text-2xl text-white/80"></i>
+                        </div>
+                    </div>
+                `;
+        grid.appendChild(card);
+    });
+}
+
+function showFavorites() {
+    // Update active state in UI
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    // Update Title
+    document.getElementById('sectionTitle').innerText = 'My Favorite Movies';
+
+    // Hide Load More button
+    document.getElementById('loadMore').classList.add('hidden');
+
+    // Render Empty State
+    const grid = document.getElementById('movieGrid');
+    grid.innerHTML = `
+        <div class="col-span-full flex flex-col items-center justify-center py-20 text-center">
+            <p class="text-xl font-bold mb-2">0 movies saved</p>
+            <i class="fas fa-heart text-6xl text-rose-600 my-6"></i>
+            <h3 class="text-2xl font-bold mb-2">No favorites yet</h3>
+            <p class="text-slate-400 max-w-sm">
+                Start adding movies to your favorites by clicking the heart icon!
+            </p>
+        </div>
+    `;
+}
+
+// --- NAVIGATION & SEARCH ---
+
+function changeCategory(endpoint, title, btn) {
+    // Update UI
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('sectionTitle').innerText = title;
+    document.getElementById('searchInput').value = '';
+
+    // Logic
+    currentPage = 1;
+    currentEndpoint = endpoint;
+    isSearching = false;
+    fetchMovies(endpoint);
+}
+
+document.getElementById('searchInput').addEventListener('keyup', async (e) => {
+    const query = e.target.value;
+    if (query.length > 2) {
+        isSearching = true;
+        currentEndpoint = `/search/multi?query=${query}`;
+        currentPage = 1;
+        fetchMovies(currentEndpoint);
+        document.getElementById('sectionTitle').innerText = `Results for: ${query}`;
+    } else if (query.length === 0) {
+        changeCategory('/movie/popular', 'Trending Now', document.querySelector('.sidebar-link'));
+    }
+});
+
+document.getElementById('loadMore').addEventListener('click', () => {
+    currentPage++;
+    fetchMovies(currentEndpoint, true);
+});
+
+// --- THEME TOGGLE ---
+
+const themeBtn = document.getElementById('themeToggle');
+themeBtn.addEventListener('click', () => {
+    const body = document.getElementById('bodyTag');
+    const main = document.getElementById('mainScroll');
+    const sidebar = document.getElementById('sidebar');
+
+    body.classList.toggle('bg-[#0b0f1a]');
+    body.classList.toggle('bg-gray-100');
+    body.classList.toggle('text-slate-900');
+    body.classList.toggle('text-slate-200');
+
+    main.classList.toggle('bg-[#0b0f1a]');
+    main.classList.toggle('bg-white');
+    sidebar.classList.toggle('bg-[#0b0f1a]');
+    sidebar.classList.toggle('bg-slate-50');
+
+    const isDark = body.classList.contains('bg-[#0b0f1a]');
+    document.getElementById('themeIcon').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+});
+
+// Initial Load
+fetchMovies(currentEndpoint);
+
+
+//Style.css
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+   body {
+       font-family: 'Plus Jakarta Sans', sans-serif;
+       transition: background 0.4s, color 0.4s;
+   }
+
+   .sidebar-link.active {
+       background: #e11d48 !important;
+       color: white !important;
+   }
+
+   .movie-card:hover .overlay {
+       opacity: 1;
+       bottom: 0;
+   }
+
+   .overlay {
+       transition: all 0.4s ease;
+       bottom: -20px;
+   }
+
+   .loader {
+       border-top-color: #e11d48;
+       animation: spinner 1.5s linear infinite;
+   }
+
+   @keyframes spinner {
+       0% {
+           transform: rotate(0deg);
+       }
+
+       100% {
+           transform: rotate(360deg);
+       }
+   }
+
+</html>
