@@ -7,8 +7,7 @@
     <title>MovieMagnet Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css">
-
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="bg-[#0b0f1a] text-slate-200 overflow-hidden" id="bodyTag">
@@ -43,8 +42,8 @@
                 </button>
                 <button onclick="showFavorites()"
                     class="sidebar-link w-full flex items-center gap-4 p-3 rounded-xl text-slate-400 hover:bg-slate-800 transition">
-                    <i class="fas fa-heart w-6 text-center"></i>
-                    <span class="hidden md:inline font-semibold">Favorites</span>
+                    <i class="fas fa-heart w-6 text-center"></i> <span
+                        class="hidden md:inline font-semibold">Favorites</span>
                 </button>
             </nav>
 
@@ -56,7 +55,6 @@
         </aside>
 
         <main class="flex-1 flex flex-col overflow-y-auto bg-[#0b0f1a]" id="mainScroll">
-
             <header
                 class="p-6 sticky top-0 bg-[#0b0f1a]/60 backdrop-blur-xl z-40 flex justify-between items-center border-b border-slate-800/50">
                 <div class="relative w-full max-w-2xl">
@@ -75,8 +73,7 @@
                 </div>
 
                 <div id="movieGrid"
-                    class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-                </div>
+                    class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6"></div>
 
                 <div class="flex justify-center py-16">
                     <button id="loadMore"
@@ -95,53 +92,29 @@
                     <a href="#" class="hover:text-rose-600 transition">Contact</a>
                 </div>
             </footer>
+        </main>
+    </div>
 
+    <div id="trailerModal" class="fixed inset-0 z-[100] hidden bg-black/90 flex items-center justify-center p-4">
+        <div
+            class="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+            <button onclick="closeTrailer()"
+                class="absolute top-4 right-4 z-[110] bg-rose-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-rose-700 transition shadow-lg">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <div id="videoContainer"
+                class="w-full h-full flex items-center justify-center text-center p-6 bg-slate-900">
+            </div>
+        </div>
+    </div>
 
-            <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>
 
-//style.css
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-
-   body {
-       font-family: 'Plus Jakarta Sans', sans-serif;
-       transition: background 0.4s, color 0.4s;
-   }
-
-   .sidebar-link.active {
-       background: #e11d48 !important;
-       color: white !important;
-   }
-
-   .movie-card:hover .overlay {
-       opacity: 1;
-       bottom: 0;
-   }
-
-   .overlay {
-       transition: all 0.4s ease;
-       bottom: -20px;
-   }
-
-   .loader {
-       border-top-color: #e11d48;
-       animation: spinner 1.5s linear infinite;
-   }
-
-   @keyframes spinner {
-       0% {
-           transform: rotate(0deg);
-       }
-
-       100% {
-           transform: rotate(360deg);
-       }
-   }
-
-//script.js
-// API Configuration (Active Key)
+// script.js
+// --- CONFIGURATION ---
 const API_KEY = '1eb8dd304876025cb465a58995f86453';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMG_URL = 'https://image.tmdb.org/t/p/w500';
@@ -149,9 +122,9 @@ const IMG_URL = 'https://image.tmdb.org/t/p/w500';
 let currentPage = 1;
 let currentEndpoint = '/movie/popular';
 let isSearching = false;
+let favorites = JSON.parse(localStorage.getItem('myMovies')) || [];
 
 // --- CORE FUNCTIONS ---
-
 async function fetchMovies(endpoint, append = false) {
     document.getElementById('loading').classList.remove('hidden');
     try {
@@ -170,10 +143,21 @@ function renderCards(items, append) {
     if (!append) grid.innerHTML = '';
 
     items.forEach(item => {
-        if (!item.poster_path && !item.profile_path) return; // Skip items without images
+        if (!item.poster_path && !item.profile_path) return;
 
+        const isFav = favorites.some(fav => fav.id === item.id);
         const card = document.createElement('div');
         card.className = 'movie-card group relative bg-slate-900 rounded-2xl overflow-hidden shadow-lg border border-slate-800 cursor-pointer';
+
+        // Determine item type for trailer logic
+        let type = item.media_type;
+        if (!type) {
+            if (currentEndpoint.includes('/tv')) type = 'tv';
+            else if (currentEndpoint.includes('/person')) type = 'person';
+            else type = 'movie';
+        }
+
+        card.onclick = () => handleItemClick(type, item);
 
         const image = item.poster_path || item.profile_path;
         const title = item.title || item.name;
@@ -182,12 +166,18 @@ function renderCards(items, append) {
 
         card.innerHTML = `
                     <img src="${IMG_URL + image}" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute top-3 right-3 z-30">
+                        <button onclick="toggleFavorite(event, ${JSON.stringify(item).replace(/"/g, '&quot;')})" 
+                                class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center hover:bg-rose-600 transition shadow-lg">
+                            <i class="${isFav ? 'fas' : 'far'} fa-heart text-white"></i>
+                        </button>
+                    </div>
                     <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent opacity-0 p-5 flex flex-col justify-end">
                         <span class="text-rose-500 text-xs font-bold mb-1">${date}</span>
                         <h3 class="font-bold text-white leading-tight truncate">${title}</h3>
                         <div class="flex items-center justify-between mt-3">
                             <span class="bg-rose-600 text-[10px] px-2 py-1 rounded text-white font-bold">${rating}</span>
-                            <i class="fas fa-play-circle text-2xl text-white/80"></i>
+                            <i class="fas ${type === 'person' ? 'fa-user-tag' : 'fa-play-circle'} text-2xl text-white/80"></i>
                         </div>
                     </div>
                 `;
@@ -195,48 +185,109 @@ function renderCards(items, append) {
     });
 }
 
-function showFavorites() {
-    // Update active state in UI
-    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+// --- TRAILER & CLICK HANDLING ---
+async function handleItemClick(type, item) {
+    const modal = document.getElementById('trailerModal');
+    const container = document.getElementById('videoContainer');
+    modal.classList.remove('hidden');
 
-    // Update Title
-    document.getElementById('sectionTitle').innerText = 'My Favorite Movies';
+    // Show Loading state inside modal
+    container.innerHTML = `<div class="loader ease-linear rounded-full border-4 border-t-4 border-rose-600 h-12 w-12"></div>`;
 
-    // Hide Load More button
-    document.getElementById('loadMore').classList.add('hidden');
+    if (type === 'person') {
+        container.innerHTML = `
+                    <div class="text-white px-4">
+                        <h2 class="text-3xl font-bold mb-4">${item.name}</h2>
+                        <p class="text-slate-400 mb-8 max-w-md mx-auto">Actors don't have movie trailers, but you can explore their works online.</p>
+                        <a href="https://www.google.com/search?q=${item.name}+movies" target="_blank" class="bg-rose-600 px-8 py-3 rounded-xl font-bold hover:bg-rose-700 transition inline-flex items-center gap-2">
+                            <i class="fas fa-external-link-alt"></i> View Filmography
+                        </a>
+                    </div>`;
+        return;
+    }
 
-    // Render Empty State
-    const grid = document.getElementById('movieGrid');
-    grid.innerHTML = `
-        <div class="col-span-full flex flex-col items-center justify-center py-20 text-center">
-            <p class="text-xl font-bold mb-2">0 movies saved</p>
-            <i class="fas fa-heart text-6xl text-rose-600 my-6"></i>
-            <h3 class="text-2xl font-bold mb-2">No favorites yet</h3>
-            <p class="text-slate-400 max-w-sm">
-                Start adding movies to your favorites by clicking the heart icon!
-            </p>
-        </div>
-    `;
+    try {
+        const res = await fetch(`${BASE_URL}/${type}/${item.id}/videos?api_key=${API_KEY}`);
+        const data = await res.json();
+        const trailer = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube') || data.results[0];
+
+        if (trailer) {
+            container.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${trailer.key}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        } else {
+            const itemName = item.title || item.name;
+            container.innerHTML = `
+                        <div class="text-white px-4">
+                            <i class="fas fa-film text-5xl text-slate-700 mb-4"></i>
+                            <h2 class="text-2xl font-bold mb-2">Trailer Not Available</h2>
+                            <p class="text-slate-400 mb-8">We couldn't find a direct trailer for "${itemName}" in our database.</p>
+                            <a href="https://www.youtube.com/results?search_query=${itemName}+trailer" target="_blank" class="bg-rose-600 px-8 py-3 rounded-xl font-bold hover:bg-rose-700 transition inline-flex items-center gap-2">
+                                <i class="fab fa-youtube"></i> Find on YouTube
+                            </a>
+                        </div>`;
+        }
+    } catch (error) {
+        container.innerHTML = `<p class="text-white">Something went wrong while loading content.</p>`;
+    }
 }
 
-// --- NAVIGATION & SEARCH ---
+function closeTrailer() {
+    const modal = document.getElementById('trailerModal');
+    document.getElementById('videoContainer').innerHTML = '';
+    modal.classList.add('hidden');
+}
+
+// --- NAVIGATION & FAVORITES ---
+function toggleFavorite(event, movie) {
+    event.stopPropagation();
+    const index = favorites.findIndex(f => f.id === movie.id);
+    if (index === -1) { favorites.push(movie); }
+    else { favorites.splice(index, 1); }
+    localStorage.setItem('myMovies', JSON.stringify(favorites));
+
+    if (document.getElementById('sectionTitle').innerText === 'My Favorite Movies') {
+        showFavorites();
+    } else {
+        const icon = event.currentTarget.querySelector('i');
+        icon.classList.toggle('fas');
+        icon.classList.toggle('far');
+    }
+}
+
+function showFavorites() {
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    const favBtn = document.querySelector('button[onclick="showFavorites()"]');
+    if (favBtn) favBtn.classList.add('active');
+    document.getElementById('sectionTitle').innerText = 'My Favorite Movies';
+    document.getElementById('loadMore').classList.add('hidden');
+    const grid = document.getElementById('movieGrid');
+    if (favorites.length === 0) {
+        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-20 text-center">
+        <p class="text-xl font-bold mb-2">0 movies saved</p>
+        <i class="fas fa-heart-broken text-6xl text-slate-700 my-6"></i>
+        <h3 class="text-2xl font-bold">No favorites yet</h3>
+        <br>
+        <p class="text-slate-400 max-w-sm">
+            Start adding movies to your favorites by clicking the heart icon!
+        </p>
+        </div>`;
+    } else {
+        renderCards(favorites, false);
+    }
+}
 
 function changeCategory(endpoint, title, btn) {
-    // Update UI
     document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('sectionTitle').innerText = title;
     document.getElementById('searchInput').value = '';
-
-    // Logic
+    document.getElementById('loadMore').classList.remove('hidden');
     currentPage = 1;
     currentEndpoint = endpoint;
     isSearching = false;
     fetchMovies(endpoint);
 }
 
-document.getElementById('searchInput').addEventListener('keyup', async (e) => {
+document.getElementById('searchInput').addEventListener('keyup', (e) => {
     const query = e.target.value;
     if (query.length > 2) {
         isSearching = true;
@@ -244,6 +295,7 @@ document.getElementById('searchInput').addEventListener('keyup', async (e) => {
         currentPage = 1;
         fetchMovies(currentEndpoint);
         document.getElementById('sectionTitle').innerText = `Results for: ${query}`;
+        document.getElementById('loadMore').classList.add('hidden');
     } else if (query.length === 0) {
         changeCategory('/movie/popular', 'Trending Now', document.querySelector('.sidebar-link'));
     }
@@ -254,8 +306,7 @@ document.getElementById('loadMore').addEventListener('click', () => {
     fetchMovies(currentEndpoint, true);
 });
 
-// --- THEME TOGGLE ---
-
+// --- ORIGINAL THEME TOGGLE LOGIC ---
 const themeBtn = document.getElementById('themeToggle');
 themeBtn.addEventListener('click', () => {
     const body = document.getElementById('bodyTag');
@@ -266,7 +317,7 @@ themeBtn.addEventListener('click', () => {
     body.classList.toggle('bg-gray-100');
     body.classList.toggle('text-slate-900');
     body.classList.toggle('text-slate-200');
-    
+
     main.classList.toggle('bg-[#0b0f1a]');
     main.classList.toggle('bg-white');
     sidebar.classList.toggle('bg-[#0b0f1a]');
@@ -276,5 +327,42 @@ themeBtn.addEventListener('click', () => {
     document.getElementById('themeIcon').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
 });
 
-// Initial Load
 fetchMovies(currentEndpoint);
+
+//style.css
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: background 0.4s, color 0.4s;
+}
+
+.sidebar-link.active {
+    background: #e11d48 !important;
+    color: white !important;
+}
+
+.movie-card:hover .overlay {
+    opacity: 1;
+    bottom: 0;
+}
+
+.overlay {
+    transition: all 0.4s ease;
+    bottom: -20px;
+}
+
+.loader {
+    border-top-color: #e11d48;
+    animation: spinner 1.5s linear infinite;
+}
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
