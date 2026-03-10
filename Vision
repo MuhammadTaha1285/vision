@@ -7,6 +7,7 @@
     <title>MovieMagnet Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
 
 </head>
 
@@ -99,10 +100,49 @@
             <script src="script.js"></script>
 </body>
 
+</html>
 
-//Script.Js
+//style.css
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+   body {
+       font-family: 'Plus Jakarta Sans', sans-serif;
+       transition: background 0.4s, color 0.4s;
+   }
+
+   .sidebar-link.active {
+       background: #e11d48 !important;
+       color: white !important;
+   }
+
+   .movie-card:hover .overlay {
+       opacity: 1;
+       bottom: 0;
+   }
+
+   .overlay {
+       transition: all 0.4s ease;
+       bottom: -20px;
+   }
+
+   .loader {
+       border-top-color: #e11d48;
+       animation: spinner 1.5s linear infinite;
+   }
+
+   @keyframes spinner {
+       0% {
+           transform: rotate(0deg);
+       }
+
+       100% {
+           transform: rotate(360deg);
+       }
+   }
+
+//script.js
 // API Configuration (Active Key)
-const API_KEY = '3fd2be37162483127341d690f1f1d10e';
+const API_KEY = '1eb8dd304876025cb465a58995f86453';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMG_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -226,7 +266,7 @@ themeBtn.addEventListener('click', () => {
     body.classList.toggle('bg-gray-100');
     body.classList.toggle('text-slate-900');
     body.classList.toggle('text-slate-200');
-
+    
     main.classList.toggle('bg-[#0b0f1a]');
     main.classList.toggle('bg-white');
     sidebar.classList.toggle('bg-[#0b0f1a]');
@@ -238,44 +278,3 @@ themeBtn.addEventListener('click', () => {
 
 // Initial Load
 fetchMovies(currentEndpoint);
-
-
-//Style.css
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-
-   body {
-       font-family: 'Plus Jakarta Sans', sans-serif;
-       transition: background 0.4s, color 0.4s;
-   }
-
-   .sidebar-link.active {
-       background: #e11d48 !important;
-       color: white !important;
-   }
-
-   .movie-card:hover .overlay {
-       opacity: 1;
-       bottom: 0;
-   }
-
-   .overlay {
-       transition: all 0.4s ease;
-       bottom: -20px;
-   }
-
-   .loader {
-       border-top-color: #e11d48;
-       animation: spinner 1.5s linear infinite;
-   }
-
-   @keyframes spinner {
-       0% {
-           transform: rotate(0deg);
-       }
-
-       100% {
-           transform: rotate(360deg);
-       }
-   }
-
-</html>
