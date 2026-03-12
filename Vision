@@ -45,6 +45,12 @@
                     <i class="fas fa-heart w-6 text-center"></i> <span
                         class="hidden md:inline font-semibold">Favorites</span>
                 </button>
+
+                <button onclick="showWatchlist()"
+                    class="sidebar-link w-full flex items-center gap-4 p-3 rounded-xl text-slate-400 hover:bg-slate-800 transition">
+                    <i class="fas fa-bookmark w-6 text-center"></i> <span
+                        class="hidden md:inline font-semibold">Watchlist</span>
+                </button>
             </nav>
 
             <button id="themeToggle"
@@ -55,12 +61,26 @@
         </aside>
 
         <main class="flex-1 flex flex-col overflow-y-auto bg-[#0b0f1a]" id="mainScroll">
-            <header
-                class="p-6 sticky top-0 bg-[#0b0f1a]/60 backdrop-blur-xl z-40 flex justify-between items-center border-b border-slate-800/50">
-                <div class="relative w-full max-w-2xl">
-                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                    <input type="text" id="searchInput" placeholder="Search for movies, actors or shows..."
-                        class="w-full bg-slate-900/50 border border-slate-700 py-4 pl-14 pr-6 rounded-2xl focus:ring-2 focus:ring-rose-600 focus:bg-slate-900 outline-none transition-all text-sm">
+            <header class="p-6 sticky top-0 bg-[#0b0f1a]/60 backdrop-blur-xl z-40 border-b border-slate-800/50">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div class="relative w-full max-w-2xl">
+                        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input type="text" id="searchInput" placeholder="Search for movies, actors or shows..."
+                            class="w-full bg-slate-900/50 border border-slate-700 py-4 pl-14 pr-6 rounded-2xl focus:ring-2 focus:ring-rose-600 outline-none transition-all text-sm">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar" id="genreContainer">
+                    <button onclick="filterByGenre(28, 'Action', this)"
+                        class="genre-btn px-6 py-2 rounded-full border border-slate-700 text-sm font-semibold hover:border-rose-600 transition whitespace-nowrap">Action</button>
+                    <button onclick="filterByGenre(35, 'Comedy', this)"
+                        class="genre-btn px-6 py-2 rounded-full border border-slate-700 text-sm font-semibold hover:border-rose-600 transition whitespace-nowrap">Comedy</button>
+                    <button onclick="filterByGenre(27, 'Horror', this)"
+                        class="genre-btn px-6 py-2 rounded-full border border-slate-700 text-sm font-semibold hover:border-rose-600 transition whitespace-nowrap">Horror</button>
+                    <button onclick="filterByGenre(878, 'Sci-Fi', this)"
+                        class="genre-btn px-6 py-2 rounded-full border border-slate-700 text-sm font-semibold hover:border-rose-600 transition whitespace-nowrap">Sci-Fi</button>
+                    <button onclick="filterByGenre(10749, 'Romance', this)"
+                        class="genre-btn px-6 py-2 rounded-full border border-slate-700 text-sm font-semibold hover:border-rose-600 transition whitespace-nowrap">Romance</button>
                 </div>
             </header>
 
@@ -86,24 +106,32 @@
 
             <footer class="mt-auto border-t border-slate-800 p-8 text-center text-slate-500 text-sm">
                 <p>© 2026 MovieMagnet Pro. All rights reserved.</p>
-                <div class="flex justify-center gap-6 mt-4">
-                    <a href="#" class="hover:text-rose-600 transition">Privacy Policy</a>
-                    <a href="#" class="hover:text-rose-600 transition">Terms of Service</a>
-                    <a href="#" class="hover:text-rose-600 transition">Contact</a>
-                </div>
             </footer>
         </main>
     </div>
 
-    <div id="trailerModal" class="fixed inset-0 z-[100] hidden bg-black/90 flex items-center justify-center p-4">
+    <div id="trailerModal" class="fixed inset-0 z-[100] hidden bg-black/95 flex items-center justify-center p-4">
         <div
-            class="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+            class="relative w-full max-w-6xl bg-[#0f172a] rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[90vh] md:h-auto">
             <button onclick="closeTrailer()"
-                class="absolute top-4 right-4 z-[110] bg-rose-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-rose-700 transition shadow-lg">
+                class="absolute top-4 right-4 z-[120] bg-rose-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition shadow-lg">
                 <i class="fas fa-times text-xl"></i>
             </button>
-            <div id="videoContainer"
-                class="w-full h-full flex items-center justify-center text-center p-6 bg-slate-900">
+
+            <div class="w-full md:w-2/3 bg-black flex items-center justify-center aspect-video md:aspect-auto">
+                <div id="videoContainer" class="w-full h-full"></div>
+            </div>
+
+            <div id="infoPanel" class="w-full md:w-1/3 p-8 overflow-y-auto bg-slate-900/50 backdrop-blur-md">
+                <h2 id="modalTitle" class="text-3xl font-bold mb-2">Movie Title</h2>
+                <div class="flex items-center gap-3 mb-6">
+                    <span id="modalRating"
+                        class="bg-rose-600 text-white text-xs font-bold px-2 py-1 rounded">Rating</span>
+                    <span id="modalDate" class="text-slate-400 text-sm">Year</span>
+                </div>
+                <h4 class="text-rose-500 font-bold uppercase text-xs tracking-widest mb-2">Storyline</h4>
+                <p id="modalDesc" class="text-slate-300 text-sm leading-relaxed mb-8">Loading overview...</p>
+                <div id="modalLinks"></div>
             </div>
         </div>
     </div>
@@ -113,7 +141,7 @@
 
 </html>
 
-// script.js
+//Script.Js
 // --- CONFIGURATION ---
 const API_KEY = '1eb8dd304876025cb465a58995f86453';
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -123,9 +151,15 @@ let currentPage = 1;
 let currentEndpoint = '/movie/popular';
 let isSearching = false;
 let favorites = JSON.parse(localStorage.getItem('myMovies')) || [];
+let watchlist = JSON.parse(localStorage.getItem('myWatchlist')) || [];
 
 // --- CORE FUNCTIONS ---
 async function fetchMovies(endpoint, append = false) {
+    const grid = document.getElementById('movieGrid');
+    if (!append) {
+        grid.innerHTML = Array(10).fill(0).map(() => `<div class="h-80 w-full rounded-2xl skeleton bg-slate-800 animate-pulse"></div>`).join('');
+    }
+
     document.getElementById('loading').classList.remove('hidden');
     try {
         const url = `${BASE_URL}${endpoint}${endpoint.includes('?') ? '&' : '?'}api_key=${API_KEY}&page=${currentPage}`;
@@ -138,7 +172,7 @@ async function fetchMovies(endpoint, append = false) {
     document.getElementById('loading').classList.add('hidden');
 }
 
-function renderCards(items, append) {
+function renderCards(items, append, isWatchlistPage = false) {
     const grid = document.getElementById('movieGrid');
     if (!append) grid.innerHTML = '';
 
@@ -146,18 +180,13 @@ function renderCards(items, append) {
         if (!item.poster_path && !item.profile_path) return;
 
         const isFav = favorites.some(fav => fav.id === item.id);
+        const isAddedToWatchlist = watchlist.some(w => w.id === item.id);
+
         const card = document.createElement('div');
-        card.className = 'movie-card group relative bg-slate-900 rounded-2xl overflow-hidden shadow-lg border border-slate-800 cursor-pointer';
+        card.className = 'movie-card group relative bg-slate-900 rounded-2xl overflow-hidden shadow-lg border border-slate-800 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-rose-600/20';
 
-        // Determine item type for trailer logic
-        let type = item.media_type;
-        if (!type) {
-            if (currentEndpoint.includes('/tv')) type = 'tv';
-            else if (currentEndpoint.includes('/person')) type = 'person';
-            else type = 'movie';
-        }
-
-        card.onclick = () => handleItemClick(type, item);
+        let type = item.media_type || (currentEndpoint.includes('/tv') ? 'tv' : currentEndpoint.includes('/person') ? 'person' : 'movie');
+        card.onclick = () => openDetails(type, item.id);
 
         const image = item.poster_path || item.profile_path;
         const title = item.title || item.name;
@@ -165,78 +194,71 @@ function renderCards(items, append) {
         const date = (item.release_date || item.first_air_date || 'Unknown').split('-')[0];
 
         card.innerHTML = `
-                    <img src="${IMG_URL + image}" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute top-3 right-3 z-30">
-                        <button onclick="toggleFavorite(event, ${JSON.stringify(item).replace(/"/g, '&quot;')})" 
-                                class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center hover:bg-rose-600 transition shadow-lg">
-                            <i class="${isFav ? 'fas' : 'far'} fa-heart text-white"></i>
-                        </button>
-                    </div>
-                    <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent opacity-0 p-5 flex flex-col justify-end">
-                        <span class="text-rose-500 text-xs font-bold mb-1">${date}</span>
-                        <h3 class="font-bold text-white leading-tight truncate">${title}</h3>
-                        <div class="flex items-center justify-between mt-3">
-                            <span class="bg-rose-600 text-[10px] px-2 py-1 rounded text-white font-bold">${rating}</span>
-                            <i class="fas ${type === 'person' ? 'fa-user-tag' : 'fa-play-circle'} text-2xl text-white/80"></i>
-                        </div>
-                    </div>
-                `;
+            <img src="${IMG_URL + image}" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500">
+            <div class="absolute top-3 right-3 z-30 flex flex-col gap-2">
+                <button onclick="toggleFavorite(event, ${JSON.stringify(item).replace(/"/g, '&quot;')})" 
+                        class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center hover:bg-rose-600 transition shadow-lg">
+                    <i class="${isFav ? 'fas' : 'far'} fa-heart text-white"></i>
+                </button>
+                ${isWatchlistPage ? `
+                <button onclick="removeFromWatchlist(event, ${item.id})" 
+                        class="w-10 h-10 rounded-full bg-red-600/80 backdrop-blur-md flex items-center justify-center hover:bg-red-700 transition shadow-lg">
+                    <i class="fas fa-times text-white"></i>
+                </button>` : `
+                <button onclick="toggleWatchlist(event, ${JSON.stringify(item).replace(/"/g, '&quot;')})" 
+                        class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center hover:bg-blue-600 transition shadow-lg">
+                    <i class="${isAddedToWatchlist ? 'fas' : 'far'} fa-bookmark text-white text-xs"></i>
+                </button>`}
+            </div>
+            <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent opacity-0 p-5 flex flex-col justify-end">
+                <span class="text-rose-500 text-xs font-bold mb-1">${date}</span>
+                <h3 class="font-bold text-white leading-tight truncate">${title}</h3>
+                <div class="flex items-center justify-between mt-3">
+                    <span class="bg-rose-600 text-[10px] px-2 py-1 rounded text-white font-bold">${rating}</span>
+                    <i class="fas ${type === 'person' ? 'fa-user-tag' : 'fa-play-circle'} text-2xl text-white/80"></i>
+                </div>
+            </div>
+        `;
         grid.appendChild(card);
     });
 }
 
-// --- TRAILER & CLICK HANDLING ---
-async function handleItemClick(type, item) {
-    const modal = document.getElementById('trailerModal');
-    const container = document.getElementById('videoContainer');
-    modal.classList.remove('hidden');
+// --- WATCHLIST LOGIC ---
+function toggleWatchlist(event, movie) {
+    event.stopPropagation();
+    const index = watchlist.findIndex(m => m.id === movie.id);
+    const btnIcon = event.currentTarget.querySelector('i');
 
-    // Show Loading state inside modal
-    container.innerHTML = `<div class="loader ease-linear rounded-full border-4 border-t-4 border-rose-600 h-12 w-12"></div>`;
-
-    if (type === 'person') {
-        container.innerHTML = `
-                    <div class="text-white px-4">
-                        <h2 class="text-3xl font-bold mb-4">${item.name}</h2>
-                        <p class="text-slate-400 mb-8 max-w-md mx-auto">Actors don't have movie trailers, but you can explore their works online.</p>
-                        <a href="https://www.google.com/search?q=${item.name}+movies" target="_blank" class="bg-rose-600 px-8 py-3 rounded-xl font-bold hover:bg-rose-700 transition inline-flex items-center gap-2">
-                            <i class="fas fa-external-link-alt"></i> View Filmography
-                        </a>
-                    </div>`;
-        return;
+    if (index === -1) {
+        watchlist.push(movie);
+        btnIcon.classList.replace('far', 'fas');
+    } else {
+        watchlist.splice(index, 1);
+        btnIcon.classList.replace('fas', 'far');
     }
+    localStorage.setItem('myWatchlist', JSON.stringify(watchlist));
+}
 
-    try {
-        const res = await fetch(`${BASE_URL}/${type}/${item.id}/videos?api_key=${API_KEY}`);
-        const data = await res.json();
-        const trailer = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube') || data.results[0];
+function removeFromWatchlist(event, id) {
+    event.stopPropagation();
+    watchlist = watchlist.filter(m => m.id !== id);
+    localStorage.setItem('myWatchlist', JSON.stringify(watchlist));
+    showWatchlist();
+}
 
-        if (trailer) {
-            container.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${trailer.key}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-        } else {
-            const itemName = item.title || item.name;
-            container.innerHTML = `
-                        <div class="text-white px-4">
-                            <i class="fas fa-film text-5xl text-slate-700 mb-4"></i>
-                            <h2 class="text-2xl font-bold mb-2">Trailer Not Available</h2>
-                            <p class="text-slate-400 mb-8">We couldn't find a direct trailer for "${itemName}" in our database.</p>
-                            <a href="https://www.youtube.com/results?search_query=${itemName}+trailer" target="_blank" class="bg-rose-600 px-8 py-3 rounded-xl font-bold hover:bg-rose-700 transition inline-flex items-center gap-2">
-                                <i class="fab fa-youtube"></i> Find on YouTube
-                            </a>
-                        </div>`;
-        }
-    } catch (error) {
-        container.innerHTML = `<p class="text-white">Something went wrong while loading content.</p>`;
+function showWatchlist() {
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('sectionTitle').innerText = "My Watchlist";
+    document.getElementById('loadMore').classList.add('hidden');
+    const grid = document.getElementById('movieGrid');
+    if (watchlist.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500">No movies saved in Watchlist.</div>`;
+    } else {
+        renderCards(watchlist, false, true);
     }
 }
 
-function closeTrailer() {
-    const modal = document.getElementById('trailerModal');
-    document.getElementById('videoContainer').innerHTML = '';
-    modal.classList.add('hidden');
-}
-
-// --- NAVIGATION & FAVORITES ---
+// --- FAVORITE LOGIC ---
 function toggleFavorite(event, movie) {
     event.stopPropagation();
     const index = favorites.findIndex(f => f.id === movie.id);
@@ -255,81 +277,118 @@ function toggleFavorite(event, movie) {
 
 function showFavorites() {
     document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-    const favBtn = document.querySelector('button[onclick="showFavorites()"]');
-    if (favBtn) favBtn.classList.add('active');
     document.getElementById('sectionTitle').innerText = 'My Favorite Movies';
     document.getElementById('loadMore').classList.add('hidden');
     const grid = document.getElementById('movieGrid');
     if (favorites.length === 0) {
-        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-20 text-center">
-        <p class="text-xl font-bold mb-2">0 movies saved</p>
-        <i class="fas fa-heart-broken text-6xl text-slate-700 my-6"></i>
-        <h3 class="text-2xl font-bold">No favorites yet</h3>
-        <br>
-        <p class="text-slate-400 max-w-sm">
-            Start adding movies to your favorites by clicking the heart icon!
-        </p>
-        </div>`;
-    } else {
-        renderCards(favorites, false);
-    }
+        grid.innerHTML = `<div class="col-span-full py-20 text-center">No favorites yet</div>`;
+    } else { renderCards(favorites, false); }
+}
+
+// --- OTHER FUNCTIONS ---
+function filterByGenre(id, name, btn) {
+    document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPage = 1;
+    currentEndpoint = `/discover/movie?with_genres=${id}`;
+    document.getElementById('sectionTitle').innerText = `${name} Movies`;
+    fetchMovies(currentEndpoint);
+}
+
+async function openDetails(type, id) {
+    const modal = document.getElementById('trailerModal');
+    const videoContainer = document.getElementById('videoContainer');
+    modal.classList.remove('hidden');
+    videoContainer.innerHTML = `<div class="loader"></div>`;
+
+    // Fetch details
+    try {
+        const [detailsRes, videosRes] = await Promise.all([
+            fetch(`${BASE_URL}/${type}/${id}?api_key=${API_KEY}`),
+            fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${API_KEY}`)
+        ]);
+
+        const details = await detailsRes.json();
+        const videoData = await videosRes.json();
+        const title = details.title || details.name;
+        const trailer = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube') || videoData.results[0];
+
+        // UI Updates
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalDesc').innerText = details.overview || "No description available.";
+        document.getElementById('modalRating').innerText = `★ ${details.vote_average ? details.vote_average.toFixed(1) : 'N/A'}`;
+        document.getElementById('modalDate').innerText = (details.release_date || details.first_air_date || 'N/A').split('-')[0];
+
+        if (trailer) {
+            videoContainer.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${trailer.key}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        } else {
+            // YAHAN CHANGE KIYA HAI: Agar trailer nahi mila to YouTube search link ka button
+            const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(title + ' trailer')}`;
+            videoContainer.innerHTML = `
+                <div class="text-white text-center p-10 flex flex-col items-center">
+                    <i class="fas fa-video-slash text-4xl mb-4"></i>
+                    <p class="mb-6">No video found in our database.</p>
+                    <a href="${youtubeSearchUrl}" target="_blank" 
+                       class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-full font-bold transition">
+                        Search on YouTube
+                    </a>
+                </div>`;
+        }
+    } catch (error) { console.error("Modal Error:", error); }
+}
+
+async function fetchPersonDetails(id) {
+    try {
+        const res = await fetch(`${BASE_URL}/person/${id}?api_key=${API_KEY}`);
+        const data = await res.json();
+        document.getElementById('modalTitle').innerText = data.name;
+        document.getElementById('modalDesc').innerText = data.biography || "Biography not available.";
+        document.getElementById('modalRating').innerText = "Celebrity";
+        document.getElementById('modalDate').innerText = data.birthday ? `Born: ${data.birthday}` : "N/A";
+
+        const videoContainer = document.getElementById('videoContainer');
+        if (data.profile_path) {
+            videoContainer.innerHTML = `<div class="w-full h-full flex items-center justify-center p-4"><img src="${IMG_URL + data.profile_path}" class="rounded-2xl shadow-2xl border-4 border-rose-600/20 max-h-full object-contain"></div>`;
+        }
+    } catch (error) { console.error("Actor Fetch Error:", error); }
+}
+
+function closeTrailer() {
+    document.getElementById('trailerModal').classList.add('hidden');
+    document.getElementById('videoContainer').innerHTML = '';
 }
 
 function changeCategory(endpoint, title, btn) {
     document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('sectionTitle').innerText = title;
-    document.getElementById('searchInput').value = '';
     document.getElementById('loadMore').classList.remove('hidden');
-    currentPage = 1;
-    currentEndpoint = endpoint;
-    isSearching = false;
+    currentPage = 1; currentEndpoint = endpoint;
     fetchMovies(endpoint);
 }
 
 document.getElementById('searchInput').addEventListener('keyup', (e) => {
     const query = e.target.value;
     if (query.length > 2) {
-        isSearching = true;
         currentEndpoint = `/search/multi?query=${query}`;
-        currentPage = 1;
-        fetchMovies(currentEndpoint);
-        document.getElementById('sectionTitle').innerText = `Results for: ${query}`;
-        document.getElementById('loadMore').classList.add('hidden');
-    } else if (query.length === 0) {
-        changeCategory('/movie/popular', 'Trending Now', document.querySelector('.sidebar-link'));
+        currentPage = 1; fetchMovies(currentEndpoint);
     }
 });
 
 document.getElementById('loadMore').addEventListener('click', () => {
-    currentPage++;
-    fetchMovies(currentEndpoint, true);
+    currentPage++; fetchMovies(currentEndpoint, true);
 });
 
-// --- ORIGINAL THEME TOGGLE LOGIC ---
-const themeBtn = document.getElementById('themeToggle');
-themeBtn.addEventListener('click', () => {
-    const body = document.getElementById('bodyTag');
-    const main = document.getElementById('mainScroll');
-    const sidebar = document.getElementById('sidebar');
-
-    body.classList.toggle('bg-[#0b0f1a]');
-    body.classList.toggle('bg-gray-100');
-    body.classList.toggle('text-slate-900');
-    body.classList.toggle('text-slate-200');
-
-    main.classList.toggle('bg-[#0b0f1a]');
-    main.classList.toggle('bg-white');
-    sidebar.classList.toggle('bg-[#0b0f1a]');
-    sidebar.classList.toggle('bg-slate-50');
-
-    const isDark = body.classList.contains('bg-[#0b0f1a]');
-    document.getElementById('themeIcon').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+document.getElementById('themeToggle').addEventListener('click', () => {
+    document.getElementById('bodyTag').classList.toggle('bg-gray-100');
+    document.getElementById('mainScroll').classList.toggle('bg-white');
+    document.getElementById('sidebar').classList.toggle('bg-slate-50');
 });
 
 fetchMovies(currentEndpoint);
 
-//style.css
+//Style.CSS
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
 
 body {
@@ -342,6 +401,21 @@ body {
     color: white !important;
 }
 
+.genre-btn.active {
+    background: #e11d48;
+    border-color: #e11d48;
+    color: white;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 .movie-card:hover .overlay {
     opacity: 1;
     bottom: 0;
@@ -352,9 +426,14 @@ body {
     bottom: -20px;
 }
 
+/* Loader Fix */
 .loader {
-    border-top-color: #e11d48;
-    animation: spinner 1.5s linear infinite;
+    border: 4px solid #1e293b;
+    border-top: 4px solid #e11d48;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spinner 1s linear infinite;
 }
 
 @keyframes spinner {
@@ -365,4 +444,112 @@ body {
     100% {
         transform: rotate(360deg);
     }
+}
+
+/* Modal Content Area Fix */
+#videoContainer {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#videoContainer img {
+    max-height: 100%;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Modal ka Right Side Panel fix */
+#infoPanel {
+    max-height: 80vh;
+    /* Screen ka 80% height */
+    overflow-y: auto;
+    /* Agar data zyada ho toh scroll aayega */
+    scrollbar-width: thin;
+    /* Firefox ke liye */
+}
+
+/* Scrollbar dikhane ke liye (Chrome/Safari) */
+#infoPanel::-webkit-scrollbar {
+    width: 6px;
+}
+
+#infoPanel::-webkit-scrollbar-thumb {
+    background-color: #e11d48;
+    border-radius: 10px;
+}
+
+/* Modal ka scrollbar hamesha active rahe aur size fix ho */
+#infoPanel {
+    overflow-y: auto !important;
+    height: 100%;
+    scrollbar-gutter: stable;
+    /* Yeh scroll bar ki jagah reserve rakhega */
+}
+
+/* Custom Scrollbar design */
+#infoPanel::-webkit-scrollbar {
+    width: 8px;
+}
+
+#infoPanel::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+#infoPanel::-webkit-scrollbar-thumb {
+    background-color: #e11d48;
+    border-radius: 20px;
+}
+
+/* Modal ka container fix karein */
+#trailerModal .bg-\[\#0f172a\] {
+    max-height: 85vh;
+    /* Screen ki height ka 85% fix kar diya */
+    display: flex;
+    flex-direction: row;
+}
+
+/* Info Panel ko scrollable aur height-limited banayein */
+#infoPanel {
+    flex: 1;
+    overflow-y: auto !important;
+    max-height: 85vh;
+    /* Modal jitni hi height rakhega */
+    scrollbar-gutter: stable;
+}
+
+/* Scrollbar styling */
+#infoPanel::-webkit-scrollbar {
+    width: 6px;
+}
+
+#infoPanel::-webkit-scrollbar-thumb {
+    background-color: #e11d48;
+    border-radius: 10px;
+}
+
+.skeleton {
+    animation: skeleton-loading 1s linear infinite alternate;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-color: #1e293b;
+    }
+
+    100% {
+        background-color: #334155;
+    }
+}
+
+.movie-card {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.movie-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(225, 29, 72, 0.3);
+    z-index: 10;
 }
