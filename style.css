@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: background 0.4s, color 0.4s;
+}
+
+.sidebar-link.active {
+    background: #e11d48 !important;
+    color: white !important;
+}
+
+.genre-btn.active {
+    background: #e11d48;
+    border-color: #e11d48;
+    color: white;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.movie-card:hover .overlay {
+    opacity: 1;
+    bottom: 0;
+}
+
+.overlay {
+    transition: all 0.4s ease;
+    bottom: -20px;
+}
+
+/* Loader Fix */
+.loader {
+    border: 4px solid #1e293b;
+    border-top: 4px solid #e11d48;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spinner 1s linear infinite;
+}
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Modal Content Area Fix */
+#videoContainer {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#videoContainer img {
+    max-height: 100%;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Modal ka Right Side Panel fix */
+#infoPanel {
+    max-height: 80vh;
+    /* Screen ka 80% height */
+    overflow-y: auto;
+    /* Agar data zyada ho toh scroll aayega */
+    scrollbar-width: thin;
+    /* Firefox ke liye */
+}
+
+/* Scrollbar dikhane ke liye (Chrome/Safari) */
+#infoPanel::-webkit-scrollbar {
+    width: 6px;
+}
+
+#infoPanel::-webkit-scrollbar-thumb {
+    background-color: #e11d48;
+    border-radius: 10px;
+}
+
+/* Modal ka scrollbar hamesha active rahe aur size fix ho */
+#infoPanel {
+    overflow-y: auto !important;
+    height: 100%;
+    scrollbar-gutter: stable;
+    /* Yeh scroll bar ki jagah reserve rakhega */
+}
+
+/* Custom Scrollbar design */
+#infoPanel::-webkit-scrollbar {
+    width: 8px;
+}
+
+#infoPanel::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+#infoPanel::-webkit-scrollbar-thumb {
+    background-color: #e11d48;
+    border-radius: 20px;
+}
+
+/* Modal ka container fix karein */
+#trailerModal .bg-\[\#0f172a\] {
+    max-height: 85vh;
+    /* Screen ki height ka 85% fix kar diya */
+    display: flex;
+    flex-direction: row;
+}
+
+/* Info Panel ko scrollable aur height-limited banayein */
+#infoPanel {
+    flex: 1;
+    overflow-y: auto !important;
+    max-height: 85vh;
+    /* Modal jitni hi height rakhega */
+    scrollbar-gutter: stable;
+}
+
+/* Scrollbar styling */
+#infoPanel::-webkit-scrollbar {
+    width: 6px;
+}
+
+#infoPanel::-webkit-scrollbar-thumb {
+    background-color: #e11d48;
+    border-radius: 10px;
+}
+
+.skeleton {
+    animation: skeleton-loading 1s linear infinite alternate;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-color: #1e293b;
+    }
+
+    100% {
+        background-color: #334155;
+    }
+}
+
+.movie-card {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.movie-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(225, 29, 72, 0.3);
+    z-index: 10;
+}
